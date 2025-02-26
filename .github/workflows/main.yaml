@@ -1,0 +1,44 @@
+name: AutoYuKeTang
+
+on:
+  schedule:
+    - cron: '45 23 * * 0-4'
+    - cron: '45 1 * * 1-5'
+    - cron: '15 6 * * 1-5'
+    - cron: '0 8 * * 1-5'
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show the current time
+        run: sudo timedatectl set-timezone Asia/Shanghai && date
+      - name: Checking out repo
+        uses: actions/checkout@v3
+      - name: Setting up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Installing apt packages
+        run: sudo apt-get install xvfb tesseract-ocr-chi-sim
+      - name: Installing Python dependencies
+        run: pip install chromedriver-autoinstaller selenium pyvirtualdisplay Pillow numpy pytesseract requests
+
+      - name: Running the Python script
+        env:
+          EMAIL: ${{ secrets.EMAIL }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: python -m src.main
+        continue-on-error: true
+        
+      - name: Commit and Push The Results From Python Selenium Action
+        run: |
+         git config --global user.name "github-actions[bot]"
+         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+         git add -A
+         git commit -m "GitHub Actions Results added"
+         git push

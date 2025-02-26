@@ -1,0 +1,16 @@
+2025-02-25 23:48:14 - INFO - Initializing Chrome browser...
+2025-02-25 23:48:15 - INFO - Opening Changjiang Yuketang website: https://changjiang.yuketang.cn/v2/web/index
+2025-02-25 23:48:18 - INFO - Cookies loaded successfully
+2025-02-25 23:48:28 - INFO - Keep looking for the onlesson button
+2025-02-25 23:48:38 - INFO - Found the onlesson button
+2025-02-25 23:56:24 - INFO - Initializing Chrome browser...
+2025-02-25 23:56:25 - INFO - Opening Changjiang Yuketang website: https://changjiang.yuketang.cn/v2/web/index
+2025-02-25 23:56:28 - INFO - Cookies loaded successfully
+2025-02-25 23:56:28 - INFO - Keep looking for the onlesson button
+2025-02-25 23:56:43 - INFO - Found the onlesson button, current lesson name: 课程1-班级1
+2025-02-25 23:59:26 - INFO - Initializing Chrome browser...
+2025-02-25 23:59:26 - INFO - Opening Changjiang Yuketang website: https://changjiang.yuketang.cn/v2/web/index
+2025-02-25 23:59:29 - INFO - Cookies loaded successfully
+2025-02-25 23:59:29 - INFO - Keep looking for the onlesson button
+2025-02-25 23:59:47 - INFO - Found the onlesson button, current lesson name: 课程1-班级1
+2025-02-25 23:59:47 - INFO - Clicking on the onlesson button
