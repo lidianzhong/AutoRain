@@ -11,6 +11,18 @@ from datetime import datetime
 import pickle
 
 from .upload import upload_image
+from config import *
+
+
+def wait_for_login(driver, logger, max_wait_time=120):  # 2分钟超时
+    start_time = time.time()
+    while IS_EXIST_LOGMA_ELEMENT(driver):
+        if time.time() - start_time > max_wait_time:
+            logger.error(f"Login timeout after {max_wait_time} seconds")
+            raise Exception("Login timeout")
+        
+        logger.info("Wait for scan login QR code...")
+        time.sleep(10)
 
 
 def setup_logger(log_dir):
@@ -47,7 +59,7 @@ def setup_browser(logger):
     chrome_options.add_argument('--disable-gpu')  # Disable GPU acceleration
     chrome_options.add_argument('--no-sandbox')  # Disable sandbox mode
     chrome_options.add_argument('--ignore-certificate-errors')  # Disable shared memory
-    chrome_options.add_argument('--headless')  # Run in headless mode
+    # chrome_options.add_argument('--headless')  # Close it for dev
     chrome_options.add_argument('--disable-extensions')
     chrome_options.add_argument('--disable-dev-shm-usage')
     
@@ -61,6 +73,7 @@ def setup_browser(logger):
         url = "https://changjiang.yuketang.cn/v2/web/index"
         logger.info(f"Opening Changjiang Yuketang website: {url}")
         driver.get(url)
+        time.sleep(5)
     except Exception as e:
         logger.info(f"30 seconds timeout, trying to stop the page loading...")
         driver.execute_script('window.stop()')
@@ -78,12 +91,12 @@ def save_cookies(driver, path, logger):
 def load_cookies(driver, cookie_path, logger):
     """Load cookies from a file."""
 
-    if not os.path.exists(cookie_path):
-        logger.info(f"No cookies.pkl file found in {cookie_path} directory")
-        logger.info("Trying waiting 30 seconds for user to login...")
+    if not os.path.exists(cookie_path) or IS_EXIST_LOGMA_ELEMENT(driver):
+        logger.info(f"No cookies.pkl file found in {cookie_path} directory or cookie has beed expried.")
+        logger.info("Trying let user to login...")
         time.sleep(20)
 
-        # Wait for user to login
+        # Save login screenshot
         driver.save_screenshot('./data/login_page.png')
         logger.info("Screenshot of login page saved as login_page.png")
 
@@ -91,7 +104,10 @@ def load_cookies(driver, cookie_path, logger):
         logger.info("Uploading screenshot to get URL...")
         image_url = upload_image('./data/login_page.png')
         logger.info(f"Please click on the following link to login: {image_url}")
-        time.sleep(40)
+        time.sleep(20)
+
+        # Wait for login
+        wait_for_login(driver, logger, max_wait_time=120) # 2分钟超时
 
         # Save cookies
         save_cookies(driver, cookie_path, logger)

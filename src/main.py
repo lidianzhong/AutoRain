@@ -12,49 +12,47 @@ import chromedriver_autoinstaller
 from .functions import setup_logger, setup_browser, load_cookies, save_cookies, find_element, check_ppt_type
 from .answer import process_image
 from .chatgpt import get_chatgpt_answer_from_dict
+from config import *
 
-# Initialize the virtual display for headless operation
-display = Display(visible=0, size=(1920, 1080))
-display.start()
+## Close it for dev
+# display = Display(visible=0, size=(1920, 1080))
+# display.start()
 
 # Auto-install chromedriver if needed
 chromedriver_autoinstaller.install()
 
 if __name__ == "__main__":
-    cookie_path = "./data/cookies.pkl"
-    logger_path = "./logs"
-    logger = setup_logger(logger_path)
+    # Init
+    logger = setup_logger(LOGGER_PATH)
     browser = setup_browser(logger)
-    load_cookies(browser, cookie_path, logger)
+
+    # Try to load cookies
+    load_cookies(browser, COOKIE_PATH, logger)
     browser.refresh()
-
-    # Record start time for timeout
-    start_time = time.time()
-    max_wait_time = 20 * 60  # 20 minutes in seconds
-    max_runtime = 100 * 60  # 100 minutes in seconds
-
+    
+    # Find the onlesson button
     onlesson = None
     while not onlesson:
         logger.info("Keep looking for the onlesson button")
         browser.refresh()
         time.sleep(5)
-        onlesson = find_element(browser, "#app > div.viewContainer > div > div.onlesson")
+        onlesson = find_element(browser, ONLESSION_ELEMENT)
         time.sleep(10)
 
         # Check if the runtime has exceeded the limit
-        if time.time() - start_time > max_wait_time:
-            logger.info("Max runtime reached, exiting the program.")
+        if time.time() - RUNNING_START_TIME > MAX_WAIT_TIME:
+            logger.info("There are no classes in the current time period. Exiting the program.")
             exit()
     
-    # Get current lesson name
-    curr_lesson_name = find_element(browser, "#app > div.viewContainer > div > div.onlesson > div > div > span.name").text
+    # Found the onlesson button, get the lesson name
+    curr_lesson_name = find_element(browser, ONLESSION_NAME_ELEMENT).text
     curr_lesson_name = curr_lesson_name.split('-')[0].strip()
     logger.info(f"Found the onlesson button, current lesson name: {curr_lesson_name}")
 
-    special_lessons = ["编译原理"]
-    if any(special_lesson in curr_lesson_name for special_lesson in special_lessons):
+    # Exclude special lessons
+    if any(special_lesson in curr_lesson_name for special_lesson in SPECAIL_LESSONS):
         logger.info(f"Current lesson {curr_lesson_name} is in the special lessons list, waiting for half of max runtime")
-        time.sleep(max_runtime / 2)
+        time.sleep(MAX_RUNNING_TIME / 2)
 
     # Enter the lesson
     logger.info("Clicking on the onlesson button")
@@ -71,8 +69,8 @@ if __name__ == "__main__":
     try:
         while True:
             # Check if the runtime has exceeded the limit
-            if time.time() - start_time > max_runtime:
-                logger.info("Max runtime reached, exiting the program.")
+            if time.time() - RUNNING_START_TIME > MAX_RUNNING_TIME:
+                logger.info("End of Course, exiting the program.")
                 break
 
             nav_bar = find_element(browser, "#app > section > section.ppt__wrapper.J_ppt > section.lesson__page > section > section > nav > section > section")
@@ -152,4 +150,4 @@ if __name__ == "__main__":
     finally:
         logger.info("Program ended, closing browser")
         browser.quit()
-        display.stop()
+        # display.stop()
