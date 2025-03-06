@@ -28,7 +28,6 @@ if __name__ == "__main__":
 
     # Try to load cookies
     load_cookies(browser, COOKIE_PATH, logger)
-    browser.refresh()
     
     # Find the onlesson button
     onlesson = None

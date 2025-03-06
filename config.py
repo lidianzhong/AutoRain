@@ -15,6 +15,7 @@ def find_element(driver, query, by=By.CSS_SELECTOR, timeout=10):
 
 
 # 获取程序运行时的北京时间
+import time
 import subprocess
 def get_system_time():
     subprocess.run(['sudo', 'timedatectl', 'set-timezone', 'Asia/Shanghai'], check=True)
@@ -36,7 +37,7 @@ def check_logma_class(driver):
 COOKIE_PATH = "./data/cookies.pkl"         # cookie文件路径
 LOGGER_PATH = "./logs"                      # 日志文件路径
 
-RUNNING_START_TIME = get_system_time()    # 程序运行时的北京时间
+RUNNING_START_TIME = time.time()    # 程序运行时的北京时间
 MAX_WAIT_TIME = 20 * 60                     # 最大等待上课时间(单位:s)
 MAX_RUNNING_TIME = 100 * 60                     # 程序最长运行时间(单位:s)
 
