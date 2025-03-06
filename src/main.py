@@ -14,9 +14,9 @@ from .answer import process_image
 from .chatgpt import get_chatgpt_answer_from_dict
 from config import *
 
-## Close it for dev
-# display = Display(visible=0, size=(1920, 1080))
-# display.start()
+# Start the virtual display
+display = Display(visible=0, size=(1920, 1080))
+display.start()
 
 # Auto-install chromedriver if needed
 chromedriver_autoinstaller.install()

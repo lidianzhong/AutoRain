@@ -59,7 +59,7 @@ def setup_browser(logger):
     chrome_options.add_argument('--disable-gpu')  # Disable GPU acceleration
     chrome_options.add_argument('--no-sandbox')  # Disable sandbox mode
     chrome_options.add_argument('--ignore-certificate-errors')  # Disable shared memory
-    # chrome_options.add_argument('--headless')  # Close it for dev
+    chrome_options.add_argument('--headless')  # Enable headless mode
     chrome_options.add_argument('--disable-extensions')
     chrome_options.add_argument('--disable-dev-shm-usage')
     
