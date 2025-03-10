@@ -93,7 +93,6 @@ def load_cookies(driver, cookie_path, logger):
     if not os.path.exists(cookie_path):
         logger.info(f"No cookies.pkl file found in {cookie_path} directory.")
         logger.info("Trying let user to login...")
-        time.sleep(10)
 
         # Save login screenshot
         driver.save_screenshot('./data/login_page.png')
@@ -108,20 +107,11 @@ def load_cookies(driver, cookie_path, logger):
         # Wait for login
         wait_for_login(driver, logger, max_wait_time=120) # 2分钟超时
 
-
-    with open(cookie_path, 'rb') as cookiesfile:
-        cookies = pickle.load(cookiesfile)
-        for cookie in cookies:
-            driver.add_cookie(cookie)
-        logger.info("Cookies loaded successfully")
-        time.sleep(1)
-        driver.refresh()
-        time.sleep(5)
-
+        # Save cookies
+        save_cookies(driver, cookie_path)
 
     if IS_EXIST_LOGMA_ELEMENT(driver):
         logger.info("Cookies expired, trying to let user to login...")
-        time.sleep(20)
 
         # Save login screenshot
         driver.save_screenshot('./data/login_page.png')
@@ -136,8 +126,18 @@ def load_cookies(driver, cookie_path, logger):
         # Wait for login
         wait_for_login(driver, logger, max_wait_time=120)
 
-    # Save cookies
-    save_cookies(driver, cookie_path)
+        # Save cookies
+        save_cookies(driver, cookie_path)
+    
+    with open(cookie_path, 'rb') as cookiesfile:
+        cookies = pickle.load(cookiesfile)
+        for cookie in cookies:
+            driver.add_cookie(cookie)
+        logger.info("Cookies loaded successfully")
+        time.sleep(1)
+        driver.refresh()
+        time.sleep(5)
+
     return driver
 
 
