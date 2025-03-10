@@ -1,48 +1,36 @@
 import time
-import os
 import re
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
+
 from pyvirtualdisplay import Display
 import chromedriver_autoinstaller
 from .functions import setup_logger, setup_browser, load_cookies, save_cookies, find_element, check_ppt_type
 from .answer import process_image
-from .chatgpt import get_chatgpt_answer_from_dict
-from config import *
+from .ask import ask
+from .config import *
 
 ## Close it for dev
 # display = Display(visible=0, size=(1920, 1080))
 # display.start()
 
 # Auto-install chromedriver if needed
-chromedriver_autoinstaller.install()
+# chromedriver_autoinstaller.install()
 
 if __name__ == "__main__":
     # Init
     logger = setup_logger(LOGGER_PATH)
     browser = setup_browser(logger)
+    
+    # Waiting for beginning of the class
+    wait_until_target_time()
 
     # Try to load cookies
     load_cookies(browser, COOKIE_PATH, logger)
-    browser.refresh()
     
     # Find the onlesson button
-    onlesson = None
-    while not onlesson:
-        logger.info("Keep looking for the onlesson button")
-        browser.refresh()
-        time.sleep(5)
-        onlesson = find_element(browser, ONLESSION_ELEMENT)
-        time.sleep(10)
-
-        # Check if the runtime has exceeded the limit
-        if time.time() - RUNNING_START_TIME > MAX_WAIT_TIME:
-            logger.info("There are no classes in the current time period. Exiting the program.")
-            exit()
+    onlesson = find_element(browser, ONLESSION_ELEMENT)
+    if not onlesson:
+        logger.info("Cannot find the onlesson button, exit.")
+        exit()
     
     # Found the onlesson button, get the lesson name
     curr_lesson_name = find_element(browser, ONLESSION_NAME_ELEMENT).text
@@ -50,9 +38,9 @@ if __name__ == "__main__":
     logger.info(f"Found the onlesson button, current lesson name: {curr_lesson_name}")
 
     # Exclude special lessons
-    if any(special_lesson in curr_lesson_name for special_lesson in SPECAIL_LESSONS):
-        logger.info(f"Current lesson {curr_lesson_name} is in the special lessons list, waiting for half of max runtime")
-        time.sleep(MAX_RUNNING_TIME / 2)
+    if curr_lesson_name in EXCLUDE_COURSES:
+        logger.info(f"Current lesson {curr_lesson_name} is in the exclude list, exit.")
+        exit()
 
     # Enter the lesson
     logger.info("Clicking on the onlesson button")
@@ -70,7 +58,7 @@ if __name__ == "__main__":
         while True:
             # Check if the runtime has exceeded the limit
             if time.time() - RUNNING_START_TIME > MAX_RUNNING_TIME:
-                logger.info("End of Course, exiting the program.")
+                logger.info("End of Course, exit.")
                 break
 
             nav_bar = find_element(browser, "#app > section > section.ppt__wrapper.J_ppt > section.lesson__page > section > section > nav > section > section")
@@ -101,26 +89,28 @@ if __name__ == "__main__":
                 if "倒计时" in countdown:
                     # Screenshot the page
                     logger.info("Detected quiz page, screenshotting the page")
-                    screenshot_flag = curr_page.screenshot(f"./data/screenshots/{curr_lesson_name}_{max_index}.png")
-                
-                    if not screenshot_flag:
-                        logger.error("Failed to screenshot the page")
-                        raise Exception("Failed to screenshot the page")
-                    
-                    # Process the image
-                    logger.info("Processing the image")
-                    quiz_text, abcd_dict = process_image(f"./data/screenshots/{curr_lesson_name}_{max_index}.png")
-                    logger.info(f"Quiz text: {quiz_text}, ABCD dict: {abcd_dict}")
+                    quiz_image_path = f"./data/screenshots/{curr_lesson_name}_{max_index}.png"
+                    curr_page.screenshot(quiz_image_path)
 
                     # Answer the question
                     logger.info("Answering the question")
-                    answer = get_chatgpt_answer_from_dict(quiz_text, abcd_dict)
-                    logger.info(f"ChatGPT answered: {answer}")
+                    answer = ask(quiz_image_path)
+                    logger.info(f"Answered: {answer}")
+
+                    # # Process the image
+                    # logger.info("Processing the image")
+                    # quiz_text, abcd_dict = process_image(f"./data/screenshots/{curr_lesson_name}_{max_index}.png")
+                    # logger.info(f"Quiz text: {quiz_text}, ABCD dict: {abcd_dict}")
+
+                    # # Answer the question
+                    # logger.info("Answering the question")
+                    # answer = get_chatgpt_answer_from_dict(quiz_text, abcd_dict)
+                    # logger.info(f"ChatGPT answered: {answer}")
                 
                 while True:
                     countdown = curr_page.find_element(By.CSS_SELECTOR, "div.time-box > div").text
                     logger.info(f"Countdown: {countdown}")
-                    time.sleep(2)
+                    time.sleep(4)
 
                     if "倒计时" not in countdown:
                         logger.info("Countdown finished, cannot answer the question")

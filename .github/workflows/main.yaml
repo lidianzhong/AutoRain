@@ -30,8 +30,8 @@ jobs:
 
       - name: Running the Python script
         env:
-          EMAIL: ${{ secrets.EMAIL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
+          EXCLUDE_COURSES: ${{ secrets.EXCLUDE_COURSES }}
+          API_KEY: ${{ secrets.API_KEY }}
         run: python -m src.main
         continue-on-error: true
         
