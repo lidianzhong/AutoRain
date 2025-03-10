@@ -4,7 +4,6 @@ import re
 from pyvirtualdisplay import Display
 import chromedriver_autoinstaller
 from .functions import setup_logger, setup_browser, load_cookies, save_cookies, find_element, check_ppt_type
-from .answer import process_image
 from .ask import ask
 from .config import *
 

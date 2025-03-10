@@ -37,16 +37,26 @@ import time
 def wait_until_target_time():
     target_times = [(8, 0), (10, 0), (14, 30), (16, 30)]
     hours, minutes = get_system_time()
-    
-    for target_hour, target_minute in target_times:
-        if (hours, minutes) < (target_hour, target_minute):
-            target_seconds = ((target_hour - hours) * 60 + (target_minute - minutes)) * 60
-            print(f"当前时间 {hours:02d}:{minutes:02d}，等待到 {target_hour:02d}:{target_minute:02d}...")
-            time.sleep(target_seconds)
-            return
-    
-    print("No need to wait. Continue...")
+    hours, minutes = 17, 15
 
+    # 找到最近的目标时间
+    closest_target = min(target_times, key=lambda t: abs(t[0] * 60 + t[1] - (hours * 60 + minutes)))
+
+    target_hours, target_minutes = closest_target
+
+    # 计算当前时间和目标时间的分钟数
+    current_time_minutes = hours * 60 + minutes
+    target_time_minutes = target_hours * 60 + target_minutes
+
+    if current_time_minutes >= target_time_minutes:
+        print(f"当前时间 {hours}:{minutes:02d} 已经过了目标时间 {target_hours}:{target_minutes:02d}，直接返回")
+        return
+    else:
+        wait_time = target_time_minutes - current_time_minutes
+        print(f"当前时间 {hours}:{minutes:02d} 未到目标时间 {target_hours}:{target_minutes:02d}，等待 {wait_time} 分钟...")
+        time.sleep(wait_time * 60)  # 模拟等待
+        print(f"时间到 {hours}:{minutes + wait_time:02d}，返回")
+    
 # ========================= Environment variables =========================
 
 COOKIE_PATH = "./data/cookies.pkl"         # cookie文件路径
