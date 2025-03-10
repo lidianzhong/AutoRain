@@ -11,7 +11,7 @@ from datetime import datetime
 import pickle
 
 from .upload import upload_image
-from config import *
+from .config import *
 
 
 def wait_for_login(driver, logger, max_wait_time=120):  # 2分钟超时
@@ -81,18 +81,17 @@ def setup_browser(logger):
     return driver
 
 
-def save_cookies(driver, path, logger):
+def save_cookies(driver, path):
     """Save cookies to a file."""
     with open(path, 'wb') as filehandler:
         pickle.dump(driver.get_cookies(), filehandler)
-    logger.info("Cookies saved successfully")
 
 
 def load_cookies(driver, cookie_path, logger):
     """Load cookies from a file."""
 
-    if not os.path.exists(cookie_path) or IS_EXIST_LOGMA_ELEMENT(driver):
-        logger.info(f"No cookies.pkl file found in {cookie_path} directory or cookie has beed expried.")
+    if not os.path.exists(cookie_path):
+        logger.info(f"No cookies.pkl file found in {cookie_path} directory.")
         logger.info("Trying let user to login...")
         time.sleep(20)
 
@@ -109,18 +108,38 @@ def load_cookies(driver, cookie_path, logger):
         # Wait for login
         wait_for_login(driver, logger, max_wait_time=120) # 2分钟超时
 
-        # Save cookies
-        save_cookies(driver, cookie_path, logger)
-        logger.info("Cookies saved successfully")
-        return
-        
+
     with open(cookie_path, 'rb') as cookiesfile:
         cookies = pickle.load(cookiesfile)
         for cookie in cookies:
             driver.add_cookie(cookie)
         logger.info("Cookies loaded successfully")
-    
+        time.sleep(1)
+        driver.refresh()
+        time.sleep(5)
+
+
+    if IS_EXIST_LOGMA_ELEMENT(driver):
+        logger.info("Cookies expired, trying to let user to login...")
+        time.sleep(20)
+
+        # Save login screenshot
+        driver.save_screenshot('./data/login_page.png')
+        logger.info("Screenshot of login page saved as login_page.png")
+
+        # Upload screenshot to get url
+        logger.info("Uploading screenshot to get URL...")
+        image_url = upload_image('./data/login_page.png')
+        logger.info(f"Please click on the following link to login: {image_url}")
+        time.sleep(20)
+
+        # Wait for login
+        wait_for_login(driver, logger, max_wait_time=120)
+
+    # Save cookies
+    save_cookies(driver, cookie_path)
     return driver
+
 
 
 def find_element(driver, query, by=By.CSS_SELECTOR, timeout=10):

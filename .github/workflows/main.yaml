@@ -24,14 +24,14 @@ jobs:
         with:
           python-version: '3.9'
       - name: Installing apt packages
-        run: sudo apt-get install xvfb tesseract-ocr-chi-sim
+        run: sudo apt-get install xvfb
       - name: Installing Python dependencies
-        run: pip install chromedriver-autoinstaller selenium pyvirtualdisplay Pillow numpy pytesseract requests
+        run: pip install chromedriver-autoinstaller selenium pyvirtualdisplay Pillow numpy requests openai
 
       - name: Running the Python script
         env:
-          EMAIL: ${{ secrets.EMAIL }}
-          PASSWORD: ${{ secrets.PASSWORD }}
+          EXCLUDE_COURSES: ${{ secrets.EXCLUDE_COURSES }}
+          API_KEY: ${{ secrets.API_KEY }}
         run: python -m src.main
         continue-on-error: true
         
