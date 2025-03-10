@@ -2,18 +2,23 @@ import requests
 
 def upload_image(file_path):
     # API 接口地址
-    api_url = 'https://imgbed.yiyunt.cn/api/upload/'
+    api_url = "https://sm.ms/api/v2/upload"
+    api_token = "ixM0QXZmIk28gnks34u32P7zOYEQ0dAU"
 
-    # 打开图片文件
-    with open(file_path, 'rb') as f:
-        # 创建文件字典
-        files = {'fileupload': f}
-        
-        # 发起 POST 请求
-        response = requests.post(api_url, files=files)
-        
-        # 输出响应结果中的 URL
-        return response.json().get('url')
+    headers = {
+         "Authorization": api_token,
+    }
+    files = {
+        "smfile": open(file_path, "rb")
+    }
+
+    response = requests.post(api_url, headers=headers, files=files)
+    result = response.json()
+
+    if result["success"]:
+        return result["data"]["url"]
+    
+    raise ValueError
 
 if __name__ == "__main__":
     # Example usage

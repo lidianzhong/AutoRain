@@ -93,7 +93,7 @@ def load_cookies(driver, cookie_path, logger):
     if not os.path.exists(cookie_path):
         logger.info(f"No cookies.pkl file found in {cookie_path} directory.")
         logger.info("Trying let user to login...")
-        time.sleep(20)
+        time.sleep(10)
 
         # Save login screenshot
         driver.save_screenshot('./data/login_page.png')
