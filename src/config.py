@@ -37,7 +37,6 @@ import time
 def wait_until_target_time():
     target_times = [(8, 0), (10, 0), (14, 30), (16, 30)]
     hours, minutes = get_system_time()
-    hours, minutes = 17, 15
 
     # 找到最近的目标时间
     closest_target = min(target_times, key=lambda t: abs(t[0] * 60 + t[1] - (hours * 60 + minutes)))

@@ -102,7 +102,6 @@ def load_cookies(driver, cookie_path, logger):
         logger.info("Uploading screenshot to get URL...")
         image_url = upload_image('./data/login_page.png')
         logger.info(f"Please click on the following link to login: {image_url}")
-        time.sleep(20)
 
         # Wait for login
         wait_for_login(driver, logger, max_wait_time=120) # 2分钟超时
@@ -121,7 +120,6 @@ def load_cookies(driver, cookie_path, logger):
         logger.info("Uploading screenshot to get URL...")
         image_url = upload_image('./data/login_page.png')
         logger.info(f"Please click on the following link to login: {image_url}")
-        time.sleep(20)
 
         # Wait for login
         wait_for_login(driver, logger, max_wait_time=120)
