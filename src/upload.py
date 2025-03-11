@@ -18,7 +18,7 @@ def upload_image(file_path):
     if result["success"]:
         return result["data"]["url"]
     
-    raise ValueError
+    return None
 
 if __name__ == "__main__":
     # Example usage
