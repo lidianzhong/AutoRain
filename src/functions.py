@@ -21,8 +21,17 @@ def wait_for_login(driver, logger, max_wait_time=120):  # 2分钟超时
             logger.error(f"Login timeout after {max_wait_time} seconds")
             raise Exception("Login timeout")
         
+        # Save login screenshot
+        driver.save_screenshot('./data/login_page.png')
+        logger.info("Screenshot of login page saved as login_page.png")
+
+        # Upload screenshot to get url
+        logger.info("Uploading screenshot to get URL...")
+        image_url = upload_image('./data/login_page.png')
+        logger.info(f"Please click on the following link to login: {image_url}")
+
         logger.info("Wait for scan login QR code...")
-        time.sleep(10)
+        time.sleep(20)
 
 
 def setup_logger(log_dir):
@@ -94,17 +103,8 @@ def load_cookies(driver, cookie_path, logger):
         logger.info(f"No cookies.pkl file found in {cookie_path} directory.")
         logger.info("Trying let user to login...")
 
-        # Save login screenshot
-        driver.save_screenshot('./data/login_page.png')
-        logger.info("Screenshot of login page saved as login_page.png")
-
-        # Upload screenshot to get url
-        logger.info("Uploading screenshot to get URL...")
-        image_url = upload_image('./data/login_page.png')
-        logger.info(f"Please click on the following link to login: {image_url}")
-
         # Wait for login
-        wait_for_login(driver, logger, max_wait_time=120) # 2分钟超时
+        wait_for_login(driver, logger, max_wait_time=360) # 6分钟超时
 
         # Save cookies
         save_cookies(driver, cookie_path)
@@ -112,17 +112,8 @@ def load_cookies(driver, cookie_path, logger):
     if IS_EXIST_LOGMA_ELEMENT(driver):
         logger.info("Cookies expired, trying to let user to login...")
 
-        # Save login screenshot
-        driver.save_screenshot('./data/login_page.png')
-        logger.info("Screenshot of login page saved as login_page.png")
-
-        # Upload screenshot to get url
-        logger.info("Uploading screenshot to get URL...")
-        image_url = upload_image('./data/login_page.png')
-        logger.info(f"Please click on the following link to login: {image_url}")
-
         # Wait for login
-        wait_for_login(driver, logger, max_wait_time=120)
+        wait_for_login(driver, logger, max_wait_time=360) # 6分钟超时
 
         # Save cookies
         save_cookies(driver, cookie_path)
